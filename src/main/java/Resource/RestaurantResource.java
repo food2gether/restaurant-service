@@ -11,7 +11,7 @@ public class RestaurantResource {
 
     @PUT
     @Path("/{id}/{displayName}")
-    @Produces(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.TEXT_PLAIN)
     public Response updateOrCreateRestaurant(@PathParam("id") int id, @PathParam("displayName") String displayName){
         if (id < 0 || displayName.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -39,7 +39,7 @@ public class RestaurantResource {
             String dummyResponseBody= """
                     {
                       "success": false,
-                      "error": {
+                      "e
                         "code": 404,
                         "message_key": "request.missingarguments"
                       }
@@ -89,7 +89,7 @@ public class RestaurantResource {
 
     }
     @GET
-    @Path("/{search}")
+    @Path("/")
     @Produces(MediaType.TEXT_PLAIN)
     public Response getAllRestaurants() {
 
@@ -174,9 +174,9 @@ public class RestaurantResource {
         }
     }
     @PUT
-    @Path("/{id}/{entries}")
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response updateMenu(@PathParam("id") int id, @PathParam("entries") String entries) {
+    @Path("/{id}/menu")
+    @Consumes(MediaType.TEXT_PLAIN)
+    public Response updateMenu(@PathParam("id") int id) {
         if (id < 0) {
             String dummyResponseBody = """
                     {
@@ -212,7 +212,7 @@ public class RestaurantResource {
         }
     }
     @GET
-    @Path("/{id}")
+    @Path("/{id}/menu")
     @Produces(MediaType.TEXT_PLAIN)
     public Response getMenuFromRestaurant(@PathParam("id") int id) {
         if (id < 0) {
