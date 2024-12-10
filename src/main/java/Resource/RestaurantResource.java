@@ -34,7 +34,7 @@ public class RestaurantResource {
                   }
                 }""";
 
-            return Response.status(Response.Status.CREATED).build();
+            return Response.status(Response.Status.CREATED).entity(dummyResponseBody).build();
         } else if (id == 2) {
             String dummyResponseBody= """
                     {
@@ -45,7 +45,7 @@ public class RestaurantResource {
                       }
                     }""";
 
-            return Response.status(Response.Status.BAD_REQUEST).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(dummyResponseBody).build();
 
         }else{
             String dummyResponseBody= """
@@ -57,7 +57,7 @@ public class RestaurantResource {
                       }
                     }""";
 
-            return Response.status(Response.Status.UNAUTHORIZED).build();
+            return Response.status(Response.Status.UNAUTHORIZED).entity(dummyResponseBody).build();
         }
 
 
@@ -85,7 +85,7 @@ public class RestaurantResource {
                   ]
                 }""";
 
-        return Response.status(Response.Status.FOUND).build();
+        return Response.status(Response.Status.FOUND).entity(dummyResponseBody).build();
 
     }
     @GET
@@ -111,7 +111,7 @@ public class RestaurantResource {
                   ]
                 }""";
 
-        return Response.status(Response.Status.FOUND).build();
+        return Response.status(Response.Status.FOUND).entity(dummyResponseBody).build();
 
     }
     @GET
@@ -134,7 +134,7 @@ public class RestaurantResource {
                       }
                     }""";
 
-            return Response.status(Response.Status.FOUND).build();
+            return Response.status(Response.Status.FOUND).entity(dummyResponseBody).build();
         }else {
             String dummyResponseBody = """
                     {
@@ -145,7 +145,7 @@ public class RestaurantResource {
                       }
                     }""";
 
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NOT_FOUND).entity(dummyResponseBody).build();
         }
     }
     @DELETE
@@ -170,7 +170,7 @@ public class RestaurantResource {
                       }
                     }""";
 
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NOT_FOUND).entity(dummyResponseBody).build();
         }
     }
     @PUT
@@ -185,7 +185,7 @@ public class RestaurantResource {
                     }
                            \s""";
 
-            return Response.status(Response.Status.OK).build();
+            return Response.status(Response.Status.OK).entity(dummyResponseBody).build();
         }else if (id == 0) {
             String dummyResponseBody = """
                     {
@@ -197,7 +197,7 @@ public class RestaurantResource {
                     }
                           \s""";
 
-            return Response.status(Response.Status.UNAUTHORIZED).build();
+            return Response.status(Response.Status.UNAUTHORIZED).entity(dummyResponseBody).build();
         }else{
             String dummyResponseBody = """
                     {
@@ -208,7 +208,7 @@ public class RestaurantResource {
                       }
                     }""";
 
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NOT_FOUND).entity(dummyResponseBody).build();
         }
     }
     @GET
@@ -235,7 +235,7 @@ public class RestaurantResource {
                       ]
                     }""";
 
-            return Response.status(Response.Status.FOUND).build();
+            return Response.status(Response.Status.FOUND).entity(dummyResponseBody).build();
         }else {
             String dummyResponseBody = "{\n" +
                     "  \"success\": false,\n" +
@@ -245,7 +245,7 @@ public class RestaurantResource {
                     "  }\n" +
                     "}";
 
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NOT_FOUND).entity(dummyResponseBody).build();
         }
     }
 }
