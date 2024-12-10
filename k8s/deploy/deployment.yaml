@@ -37,6 +37,5 @@ spec:
         env: []
         ports:
         - containerPort: 8080
-          name: restaurant-service
+          name: http
       restartPolicy: Always
-
