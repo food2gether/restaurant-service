@@ -11,7 +11,7 @@ public class RestaurantResource {
 
     @PUT
     @Path("/{id}/{displayName}")
-    @Consumes(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response updateOrCreateRestaurant(@PathParam("id") int id, @PathParam("displayName") String displayName){
         if (id < 0 || displayName.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -39,7 +39,7 @@ public class RestaurantResource {
             String dummyResponseBody= """
                     {
                       "success": false,
-                      "e
+                      "error": {
                         "code": 404,
                         "message_key": "request.missingarguments"
                       }
@@ -64,7 +64,7 @@ public class RestaurantResource {
     }
     @GET
     @Path("/{search}")
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response hello( @PathParam("search") String search) {
 
         String dummyResponseBody = """
@@ -80,8 +80,7 @@ public class RestaurantResource {
                         "city": "Aachen",
                         "postalcode": 52072
                       }
-                    },
-                    ...
+                    }
                   ]
                 }""";
 
@@ -89,10 +88,10 @@ public class RestaurantResource {
 
     }
     @GET
-    @Path("/")
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getAllRestaurants() {
 
+        System.out.println("GET ALL RESTAURANTS");
         String dummyResponseBody = """
                 {
                   "success": true,
@@ -106,8 +105,7 @@ public class RestaurantResource {
                         "city": "Aachen",
                         "postalcode": 52072
                       }
-                    },
-                    ...
+                    }
                   ]
                 }""";
 
@@ -116,7 +114,7 @@ public class RestaurantResource {
     }
     @GET
     @Path("/{id}")
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getRestaurant(@PathParam("id") int id) {
         if (id < 0) {
             String dummyResponseBody = """
@@ -150,7 +148,7 @@ public class RestaurantResource {
     }
     @DELETE
     @Path("/{id}")
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response deleteRestaurant(@PathParam("id") int id) {
         if (id < 0) {
             String dummyResponseBody = """
@@ -175,7 +173,7 @@ public class RestaurantResource {
     }
     @PUT
     @Path("/{id}/menu")
-    @Consumes(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response updateMenu(@PathParam("id") int id) {
         if (id < 0) {
             String dummyResponseBody = """
@@ -213,7 +211,7 @@ public class RestaurantResource {
     }
     @GET
     @Path("/{id}/menu")
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getMenuFromRestaurant(@PathParam("id") int id) {
         if (id < 0) {
             String dummyResponseBody = """
@@ -230,20 +228,22 @@ public class RestaurantResource {
                             "VEGAN",
                             "PEANUTS"
                           ]
-                        },
-                        ...
+                        }
                       ]
-                    }""";
+                    }
+                    """;
 
             return Response.ok(dummyResponseBody).build();
         }else {
-            String dummyResponseBody = "{\n" +
-                    "  \"success\": false,\n" +
-                    "  \"error\": {\n" +
-                    "    \"code\": 404,\n" +
-                    "    \"message_key\": \"restaurant.notfound\"\n" +
-                    "  }\n" +
-                    "}";
+            String dummyResponseBody = """
+                    {
+                      "success": false,"
+                      "error": {"
+                        "code": 404,"
+                        "message_key": "restaurant.notfound"
+                      }
+                    }
+                    """;
 
             return Response.status(Response.Status.NOT_FOUND).entity(dummyResponseBody).build();
         }
