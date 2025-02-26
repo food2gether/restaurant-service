@@ -85,7 +85,7 @@ public class RestaurantResource {
                   ]
                 }""";
 
-        return Response.status(Response.Status.FOUND).entity(dummyResponseBody).build();
+        return Response.ok(dummyResponseBody).build();
 
     }
     @GET
@@ -111,7 +111,7 @@ public class RestaurantResource {
                   ]
                 }""";
 
-        return Response.status(Response.Status.FOUND).entity(dummyResponseBody).build();
+        return Response.ok(dummyResponseBody).build();
 
     }
     @GET
@@ -134,7 +134,7 @@ public class RestaurantResource {
                       }
                     }""";
 
-            return Response.status(Response.Status.FOUND).entity(dummyResponseBody).build();
+            return Response.ok(dummyResponseBody).build();
         }else {
             String dummyResponseBody = """
                     {
@@ -185,7 +185,7 @@ public class RestaurantResource {
                     }
                            \s""";
 
-            return Response.status(Response.Status.OK).entity(dummyResponseBody).build();
+            return Response.ok(dummyResponseBody).build();
         }else if (id == 0) {
             String dummyResponseBody = """
                     {
@@ -235,7 +235,7 @@ public class RestaurantResource {
                       ]
                     }""";
 
-            return Response.status(Response.Status.FOUND).entity(dummyResponseBody).build();
+            return Response.ok(dummyResponseBody).build();
         }else {
             String dummyResponseBody = "{\n" +
                     "  \"success\": false,\n" +
