@@ -1,0 +1,36 @@
+* Alle Spuren des "minikube" Clusters wurden entfernt.
+* minikube v1.34.0 auf Microsoft Windows 10 Pro 10.0.19045.5247 Build 19045.5247
+* Verwende den Treiber docker basierend auf der Benutzer-Konfiguration
+* Verwende den Treiber Docker Desktop mit root-Privilegien
+* Starte "minikube" primary control-plane Node im "minikube" Cluster
+* Ziehe Base Image v0.0.45 ...
+* Erstelle docker container (CPUs=2, Memory=8100MB) ...
+* Vorbereiten von Kubernetes v1.31.0 auf Docker 27.2.0...
+  - apiserver.service-node-port-range=1-32767
+  - Generiere Zertifikate und Schlüssel ...
+  - Starte Control-Plane ...
+  - Konfiguriere RBAC Regeln ...
+* Konfiguriere bridge CNI (Container Networking Interface) ...
+* Verifiziere Kubernetes Komponenten...
+  - Verwende Image gcr.io/k8s-minikube/storage-provisioner:v5
+* Nachdem das Addon aktiviert wurde, führen Sie bitte "minikube tunnel" aus, dann sind ihre Resourcen über "127.0.0.1" erreichbar
+  - Verwende Image registry.k8s.io/ingress-nginx/controller:v1.11.2
+  - Verwende Image registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.4.3
+  - Verwende Image registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.4.3
+* Verifiziere ingress Addon...
+* Addons aktiviert: storage-provisioner, default-storageclass, ingress
+* Fertig! kubectl ist jetzt für die standardmäßige (default) Verwendung des Clusters "minikube" und des Namespaces "default" konfiguriert
+Please enter your GitHub personal access token (PAT): 
+
+Cluster is set up!
+
+Patching cluster for local development...
+service "restaurant-service" deleted
+deployment.apps "restaurant-service" deleted
+service/restaurant-service created
+service/postgresql-rw patched
+service/postgresql-rw patched
+[H[2J[3J
+Setup complete. You can now access the application at http://localhost/
+The database is available at postgres://app:ovxabG6DXtrtfktquKcVTYrOiDd5uORSWsqILcCKod5z8K1L48UdrcftL34fPD8I@localhost:5432/app
+Press Q to exit and remove the minikube cluster
