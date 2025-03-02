@@ -5,21 +5,22 @@ import com.github.food2gether.restaurantservice.repository.RestaurantRepository;
 import com.github.food2gether.shared.model.MenuItem;
 import com.github.food2gether.shared.model.MenuItem.DTO;
 import com.github.food2gether.shared.model.Restaurant;
+import io.quarkus.runtime.util.StringUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response.Status;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @ApplicationScoped
 public class RestaurantServiceImpl implements RestaurantService {
 
   @Inject
   EntityManager entityManager;
+
   @Inject
   RestaurantRepository restaurantRepository;
   @Inject
@@ -30,12 +31,28 @@ public class RestaurantServiceImpl implements RestaurantService {
     return restaurantDto.getId() == null ? this.create(restaurantDto) : this.update(restaurantDto);
   }
 
-  @Override
+  @Transactional
   public Restaurant create(Restaurant.DTO restaurantDto) {
     if (restaurantDto.getId() != null) {
-      throw new WebApplicationException("Restaurant id must be null for creating a new Restaurant",
-          Status.BAD_REQUEST);
+      throw new WebApplicationException(
+          "Restaurant id must be null for creating a new Restaurant",
+          Status.BAD_REQUEST
+      );
     }
+
+
+    if (StringUtil.isNullOrEmpty(restaurantDto.getDisplayName())
+        || restaurantDto.getAddress() == null
+        || StringUtil.isNullOrEmpty(restaurantDto.getAddress().getCity())
+        || StringUtil.isNullOrEmpty(restaurantDto.getAddress().getCountry())
+        || StringUtil.isNullOrEmpty(restaurantDto.getAddress().getPostalCode())
+        || StringUtil.isNullOrEmpty(restaurantDto.getAddress().getStreet())) {
+      throw new WebApplicationException(
+          "Restaurant display name and address must not be null",
+          Status.BAD_REQUEST
+      );
+    }
+
     Restaurant restaurant = new Restaurant();
     restaurant.setDisplayName(restaurantDto.getDisplayName());
     restaurant.setAddress(restaurantDto.getAddress());
@@ -45,95 +62,131 @@ public class RestaurantServiceImpl implements RestaurantService {
     return restaurant;
   }
 
+  @Transactional
   public Restaurant update(Restaurant.DTO restaurantDto) {
     if (restaurantDto.getId() == null) {
       throw new WebApplicationException("Restaurant id must not be null for updating a Restaurant",
           Status.BAD_REQUEST);
     }
-    Optional<Restaurant> existingRestaurant = restaurantRepository.findByIdOptional(
-        restaurantDto.getId());
-    if (existingRestaurant.isPresent()) {
-      Restaurant restaurant = existingRestaurant.get();
-      if (restaurantDto.getDisplayName() != null) {
-        restaurant.setDisplayName(restaurantDto.getDisplayName());
-      }
-      if (restaurantDto.getAddress() != null) {
-        restaurant.setAddress(restaurantDto.getAddress());
-      }
 
-      this.restaurantRepository.persist(restaurant);
-      return restaurant;
-    } else {
-      throw new NotFoundException("Restaurant not found");
+    Restaurant restaurant = this.restaurantRepository.findByIdOptional(restaurantDto.getId())
+        .orElseThrow(() -> new NotFoundException("Restaurant not found"));
+
+    if (StringUtil.isNullOrEmpty(restaurantDto.getDisplayName())) {
+      restaurant.setDisplayName(restaurantDto.getDisplayName());
     }
-  }
 
-  @Override
-  public List<MenuItem> toMenuItems(List<DTO> menuItemDtos) {
-    return List.of();
+    if (restaurantDto.getAddress() != null) {
+      // TODO more advanced checking
+      restaurant.setAddress(restaurantDto.getAddress());
+    }
+
+    this.restaurantRepository.persist(restaurant);
+    return restaurant;
   }
 
   @Override
   public List<MenuItem> getMenuItems(Long id) {
-    return menuItemRepository.list("restaurant.id", id);
-
+    return this.menuItemRepository.findMenuItemsByRestaurantId(id);
   }
-
 
   @Override
   public List<Restaurant> getAll(String query) {
-    if(query != null){
-      return this.restaurantRepository.listAllForQuery(query);
-    }
-    return this.restaurantRepository.listAll();
+    return query != null
+        ? this.restaurantRepository.listAllForQuery(query)
+        : this.restaurantRepository.listAll();
   }
 
   @Override
   public Restaurant get(Long id) {
-    return restaurantRepository.findByIdOptional(id)
+    return this.restaurantRepository.findByIdOptional(id)
         .orElseThrow(() -> new NotFoundException("Restaurant not found"));
   }
 
   @Override
+  @Transactional
   public Restaurant delete(Long id) {
-    Optional<Restaurant> restaurant = restaurantRepository.findByIdOptional(id);
-    if (restaurant.isPresent()) {
-      restaurantRepository.delete(restaurant.get());
-    } else {
-      throw new NotFoundException("Restaurant not found");
-    }
-    return restaurant.get();
+    Restaurant restaurant = restaurantRepository.findByIdOptional(id)
+        .orElseThrow(() -> new NotFoundException("Restaurant not found"));
+
+    this.restaurantRepository.delete(restaurant);
+    return restaurant;
   }
 
   @Override
-  public List< MenuItem> createOrUpdateMenuItems(int restaurantId, List<DTO> menuItemDtos) {
-    Restaurant restaurant = restaurantRepository.findByIdOptional((long) restaurantId)
+  @Transactional
+  public List<MenuItem> createOrUpdateMenu(Long restaurantId, List<DTO> menuItemDtos) {
+    Restaurant restaurant = this.restaurantRepository.findByIdOptional(restaurantId)
         .orElseThrow(() -> new NotFoundException("Restaurant not found"));
 
+    List<MenuItem> menu = menuItemDtos.stream()
+        .map(itemDto ->
+            itemDto.getId() == null
+                ? this.createMenuItem(itemDto, restaurantId)
+                : this.updateMenuItem(itemDto))
+        .toList();
 
-    List<MenuItem> menuItems = new ArrayList<>();
-    for (MenuItem.DTO menuItemDto : menuItemDtos) {
-      Optional<MenuItem> existingMenuItem = menuItemRepository.findByIdOptional(menuItemDto.getId());
-      MenuItem menuItem;
+    List<MenuItem> currentMenu = restaurant.getMenu();
+    currentMenu.clear();
+    currentMenu.addAll(menu);
 
-      if (existingMenuItem.isPresent()) {
-        // Update existing menu item
-        menuItem = existingMenuItem.get();
-
-      } else {
-        menuItem = new MenuItem();
-        menuItem.setRestaurant(restaurant);
-
-      }
-
-      menuItem.setName(menuItemDto.getName());
-      menuItem.setPrice(menuItemDto.getPrice());
-      menuItem.setDescription(menuItemDto.getDescription());
-      menuItemRepository.persist(menuItem);
-      menuItems.add(menuItem);
-    }
-    return menuItems;
+    this.restaurantRepository.persist(restaurant);
+    return menu;
   }
 
+  private MenuItem createMenuItem(MenuItem.DTO menuItemDto, Long restaurantId) {
+    if (menuItemDto.getId() != null) {
+      throw new WebApplicationException(
+          "Menu item id must be null for creating a new menu item",
+          Status.BAD_REQUEST
+      );
+    }
+
+    if (StringUtil.isNullOrEmpty(menuItemDto.getName())
+        || menuItemDto.getPrice() <= 0) {
+      throw new WebApplicationException(
+          "Menu item name must not be null and price must be greater than 0",
+          Status.BAD_REQUEST
+      );
+    }
+
+    MenuItem menuItem = new MenuItem();
+    menuItem.setName(menuItemDto.getName());
+    menuItem.setPrice(menuItemDto.getPrice());
+    menuItem.setDescription(
+        menuItemDto.getDescription() != null
+            ? menuItemDto.getDescription()
+            : "");
+
+    menuItem.setRestaurant(this.entityManager.getReference(Restaurant.class, restaurantId));
+
+    return menuItem;
+  }
+
+  private MenuItem updateMenuItem(MenuItem.DTO menuItemDto) {
+    if (menuItemDto.getId() == null) {
+      throw new WebApplicationException(
+          "Menu item id must not be null for updating a menu item",
+          Status.BAD_REQUEST
+      );
+    }
+
+    MenuItem menuItem = this.menuItemRepository.findByIdOptional(menuItemDto.getId())
+        .orElseThrow(() -> new NotFoundException("Menu item not found"));
+
+    if (StringUtil.isNullOrEmpty(menuItemDto.getName())) {
+      menuItem.setName(menuItemDto.getName());
+    }
+
+    if (menuItemDto.getPrice() > 0) {
+      menuItem.setPrice(menuItemDto.getPrice());
+    }
+
+    if (menuItemDto.getDescription() != null) {
+      menuItem.setDescription(menuItemDto.getDescription());
+    }
+
+    return menuItem;
+  }
 
 }

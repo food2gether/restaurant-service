@@ -7,13 +7,8 @@ import com.github.food2gether.shared.model.Restaurant;
 import java.util.List;
 
 public interface RestaurantService {
+
   Restaurant createOrUpdate(Restaurant.DTO restaurantDto);
-
-  Restaurant create(Restaurant.DTO restaurantDto);
-
-  Restaurant update(Restaurant.DTO restaurantDto);
-
-  List<MenuItem> toMenuItems(List<MenuItem.DTO> menuItemDtos);
 
   List<MenuItem> getMenuItems(Long id);
 
@@ -23,5 +18,5 @@ public interface RestaurantService {
 
   Restaurant delete(Long id);
 
-  List<MenuItem> createOrUpdateMenuItems(int id, List<DTO> menuItemDtos);
+  List<MenuItem> createOrUpdateMenu(Long id, List<DTO> menuItemDtos);
 }
