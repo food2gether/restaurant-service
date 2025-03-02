@@ -1,61 +1,78 @@
-# restaurant-service
+# Restaurant Service - Quarkus Project
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+## Abstract
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+The **Restaurant Service** is a Quarkus-based backend application that facilitates restaurant management
+for the Food2Gether platform. It provides RESTful APIs to handle restaurant and their menus efficiently
+using Hibernate ORM, Panache repositories, and other Quarkus features.
 
-## Running the application in dev mode
+## How to Develop
 
-You can run your application in dev mode that enables live coding using:
+### Prerequisites
 
-```shell script
-./mvnw compile quarkus:dev
+- Java 17+
+- Maven 3.9+
+- Docker (optional, for containerized development or for running quarkus in dev mode)
+- Kubernetes (optional, for local cluster testing)
+
+### Steps to Run Locally
+Run the application in development mode:
+```sh
+./mvnw quarkus:dev
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+Access the DevUI at http://localhost:8080/q/dev/ \
+The API will be available at http://localhost:8080/api/v1/restaurants
 
-## Packaging and running the application
+## How to Deploy
 
-The application can be packaged using:
+### Docker Deployment JVM
 
-```shell script
-./mvnw package
-```
+1. Build the Quarkus application:
+   ```sh
+   ./mvnw package
+   ```
+2. Build and tag the Docker image:
+   ```sh
+   docker build -f src/main/docker/Dockerfile.jvm -t ghcr.io/food2gether/restaurants-service:jvm .
+   ```
+3. Run the container:
+   ```sh
+   docker run -i --rm -p 8080:8080 ghcr.io/food2gether/restaurants-service:jvm
+   ```
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+### Docker Deployment Native
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
+1. Build the Quarkus application:
+   ```sh
+   ./mvnw package -Pnative -Dquarkus.native.container-build=true
+   ```
+2. Build and tag the Docker image:
+   ```sh
+   docker build -f src/main/docker/Dockerfile -t ghcr.io/food2gether/restaurants-service .
+   ```
+3. Run the container:
+   ```sh
+   docker run -i --rm -p 8080:8080 ghcr.io/food2gether/restaurants-service
+   ```
 
-If you want to build an _über-jar_, execute the following command:
 
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
-```
+### Kubernetes Deployment
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+1. Ensure you have `kubectl` and `kustomize` installed.
+2. Deploy to Kubernetes:
+   ```sh
+   kubectl apply -k k8s/deploy
+   ```
+3. Verify the deployment:
+   ```sh
+   kubectl get pods -n food2gether
+   ```
+4. Expose the service:
+   ```sh
+   kubectl port-forward service/restaurants-service 8080:80 -n food2gether
+   ```
+5. Access the API at http://localhost:8080/api/v1/restaurants
 
-## Creating a native executable
+For more details, refer to the [Quarkus documentation](https://quarkus.io).
 
-You can create a native executable using:
-
-```shell script
-./mvnw package -Dnative
-```
-
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
-
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
-
-You can then execute your native executable with: `./target/restaurant-service-1.0.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
-
-## Related Guides
-
-- JPAStreamer ([guide](https://quarkiverse.github.io/quarkiverse-docs/quarkus-jpastreamer/dev/)): Express your Hibernate queries as standard Java Streams
-- SmallRye OpenAPI ([guide](https://quarkus.io/guides/openapi-swaggerui)): Document your REST APIs with OpenAPI - comes with Swagger UI
-- Hibernate ORM with Panache ([guide](https://quarkus.io/guides/hibernate-orm-panache)): Simplify your persistence code for Hibernate ORM via the active record or the repository pattern
-- JDBC Driver - MySQL ([guide](https://quarkus.io/guides/datasource)): Connect to the MySQL database via JDBC
