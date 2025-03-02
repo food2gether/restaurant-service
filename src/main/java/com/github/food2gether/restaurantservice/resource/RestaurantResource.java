@@ -60,7 +60,7 @@ public class RestaurantResource {
   @Path("/{id}")
   @Produces(MediaType.APPLICATION_JSON)
   public Response getRestaurant(@PathParam("id") Long id) {
-    return APIResponse.response(Response.Status.OK, this.service.get(id));
+    return APIResponse.response(Response.Status.OK, Restaurant.DTO.fromRestaurant(this.service.get(id)));
   }
 
 

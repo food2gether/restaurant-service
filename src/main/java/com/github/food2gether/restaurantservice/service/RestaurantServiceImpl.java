@@ -72,7 +72,7 @@ public class RestaurantServiceImpl implements RestaurantService {
     Restaurant restaurant = this.restaurantRepository.findByIdOptional(restaurantDto.getId())
         .orElseThrow(() -> new NotFoundException("Restaurant not found"));
 
-    if (StringUtil.isNullOrEmpty(restaurantDto.getDisplayName())) {
+    if (!StringUtil.isNullOrEmpty(restaurantDto.getDisplayName())) {
       restaurant.setDisplayName(restaurantDto.getDisplayName());
     }
 
@@ -81,12 +81,14 @@ public class RestaurantServiceImpl implements RestaurantService {
       restaurant.setAddress(restaurantDto.getAddress());
     }
 
-    this.restaurantRepository.persist(restaurant);
     return restaurant;
   }
 
   @Override
   public List<MenuItem> getMenuItems(Long id) {
+    if (this.restaurantRepository.findByIdOptional(id).isEmpty()) {
+      throw new NotFoundException("Restaurant not found");
+    }
     return this.menuItemRepository.findMenuItemsByRestaurantId(id);
   }
 
@@ -174,7 +176,7 @@ public class RestaurantServiceImpl implements RestaurantService {
     MenuItem menuItem = this.menuItemRepository.findByIdOptional(menuItemDto.getId())
         .orElseThrow(() -> new NotFoundException("Menu item not found"));
 
-    if (StringUtil.isNullOrEmpty(menuItemDto.getName())) {
+    if (!StringUtil.isNullOrEmpty(menuItemDto.getName())) {
       menuItem.setName(menuItemDto.getName());
     }
 

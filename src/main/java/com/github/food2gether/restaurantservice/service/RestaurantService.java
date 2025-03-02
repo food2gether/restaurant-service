@@ -14,7 +14,7 @@ public interface RestaurantService {
 
   List<Restaurant> getAll(String query);
 
-  Object get(Long id);
+  Restaurant get(Long id);
 
   Restaurant delete(Long id);
 
